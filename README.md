@@ -35,14 +35,20 @@ mbox_send() takes a core number, mailbox number, and message as parameters. This
 
 mbox_read() takes just the mailbox number as a parameter. On each core, we only read from our own four mailboxes. Thus, we use our core number and the specified mailbox number to read the message.
 
-Figuring out how to use the mailboxes was fairly tricky. There aren't any good examples of using mailboxes/mailbox interrupts for multicore communication on the raspberry pi, and there is very little documentation(https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2836/QA7_rev3.4.pdf) about the raspi3 local peripherals. However, the mailboxes now provide a very clean and effective way to communicate between cores.
+Figuring out how to use the mailboxes was fairly tricky. There aren't any good examples of using mailboxes/mailbox interrupts for multicore communication on the raspberry pi, and there is very [little documentation](https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2836/QA7_rev3.4.pdf) about the raspi3 local peripherals. However, the mailboxes now provide a very clean and effective way to communicate between cores.
+
+# Pi Shell
+
+Our multicore bootloader builds on the simple shell we used in lab 10. Basically, the master core receives directions from the unix-side pi-shell. We currently support functionality for three commands (echo, send, stop). Echo simply echoes whatever the user types in the pi-shell. Send first sends the pi the address to write a program to, then sends the program with a similar protocol as our bootloader. The program is written to the specified address then the master sends the address to the designated core's mailbox 0 to start its execution. Stop simply sends a message to the designated core's mailbox 1, forcing it to halt execution. The unix-side pi-shell is basically a simple, modified version of the lab10 pi-shell.
 
 # Memory
+
+
 
 ## Blink
 
 ## Virtual Memory (attempted but failed)
 
-# Pi Shell
+
 
 # Conclusion 
