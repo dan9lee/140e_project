@@ -12,7 +12,6 @@
 #include "peripherals/mbox.h"
 #include "bootloader.h"
 
-unsigned waitMaster=1;
 int strncmp(const char* _s1, const char* _s2, unsigned n) {
 	const unsigned char *s1 = (void*)_s1, *s2 = (void*)_s2;
 	while(n--) {
@@ -21,6 +20,7 @@ int strncmp(const char* _s1, const char* _s2, unsigned n) {
 	}
 	return 0;
 }
+
 static int readline(char *buf, int sz) {
 	// printf("starting to read\r\n");
 	for(int i = 0; i < sz; i++) {
@@ -28,10 +28,7 @@ static int readline(char *buf, int sz) {
 			buf[i] = 0;
 			return i;
 		}
-		// printf("read a character\r\n");
-		// uart_send(buf[i]);
 	}
-	// just return partial read?
 	
 	return -1;
 }
@@ -73,7 +70,6 @@ void kernel_main(void)
 			unsigned long addr = ((unsigned long) addr_upper << 32) + addr_lower;
 			printf("core %u got addr %u %u\n", core, addr_upper, addr_lower);
 			load((unsigned *)addr);
-			waitMaster=0;
 			delay(100000);
 			mbox_sendA(core, 0, (unsigned*) addr);
 
@@ -100,16 +96,6 @@ void kernel_child() {
 	}
 	irq_vector_init();
 	enable_irq();
-	// unsigned cpu = getCore();
 	hang();
-	// while(waitMaster) {;}
-	// delay(cpu* 10000);
-	// printf("CPU %u awake\r\n", cpu);
-	// while(1) {;}
-	// if(cpu == 1){
 
-	// 	while(waitMaster){;}
-	// 	BRANCHTO(0x1000000);
-	// }
-	// hang();
 }

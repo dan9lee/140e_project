@@ -24,7 +24,10 @@ const char *entry_error_messages[] = {
 	"SYNC_INVALID_EL0_32",		
 	"IRQ_INVALID_EL0_32",		
 	"FIQ_INVALID_EL0_32",		
-	"ERROR_INVALID_EL0_32"	
+	"ERROR_INVALID_EL0_32",
+
+	"SYNC_ERROR",
+	"SYSCALL_ERROR"
 };
 
 void enable_interrupt_controller()
@@ -39,27 +42,39 @@ void show_invalid_entry_message(int type, unsigned long esr, unsigned long addre
 
 void handle_irq(void)
 {
-	unsigned cpuId = getCore();
-	// unsigned int irq = get32(IRQ_PENDING_1);
-	// if(irq == SYSTEM_TIMER_IRQ_1) handle_timer_irq();
-
-
-	unsigned irqSourceAddr = CORE0_IRQ_SOURCE + 4*cpuId;
-	unsigned src = get32(irqSourceAddr);
-	unsigned val = (src >> 4) & (0b1111);
-	unsigned mboxNum = 0;
-	// printf("mboxC\r\n");
-	while(!(val & 1 << mboxNum)) {
-		mboxNum++;
-		if(mboxNum > 3) {
-			mboxNum = -1;
+	unsigned int irq = get32(IRQ_PENDING_1);
+	switch (irq) {
+		case (SYSTEM_TIMER_IRQ_1):
+			handle_timer_irq();
 			break;
-		}
+		default:
+			printf("Inknown pending irq: %x\r\n", irq);
 	}
-	// printf("gotNum\r\n");
-	if(val) {
-		// printf("received mbox interrupt on cpu %u mbox %u\r\n", cpuId, mboxNum);
-		handle_mbox_irq(mboxNum);
-	} 
-	// printf("finIRQ\r\n");
+	// unsigned known = 0;
+	// unsigned cpuId = getCore();
+	// // printf("%u\r\n", cpuId);
+
+
+	// unsigned int irq = get32(IRQ_PENDING_1);
+	// if(irq & SYSTEM_TIMER_IRQ_1) {
+	// 	handle_timer_irq();
+	// 	known = 1;
+	// }
+
+	// unsigned irqSourceAddr = CORE0_IRQ_SOURCE + 4*cpuId;
+	// unsigned src = get32(irqSourceAddr);
+	// unsigned val = (src >> 4) & (0b1111);
+	// unsigned mboxNum = 0;
+	// while(!(val & 1 << mboxNum)) {
+	// 	mboxNum++;
+	// 	if(mboxNum > 3) {
+	// 		mboxNum = -1;
+	// 		break;
+	// 	}
+	// }
+	// if(val) {
+	// 	handle_mbox_irq(mboxNum);
+	// 	known = 1;
+	// } 
+	// if(!known) printf("UNKNOWNINT\r\n");
 }
