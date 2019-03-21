@@ -4,7 +4,7 @@ We developed a bare metal implementation of a multicore bootloader for the Raspb
 
 The master core (core 0) communicates with our unix-side pi-shell over UART. We can use the pi-shell to specify a program to run on a particular slave core (1-3). The master core receives the program, writes it to memory, then sends the specified slave core a message containing the address of the program. The slave receives an interrupt then jumps to the address - thus it starts running the program. We can also send the slave an interrupt to stop running the program or to run a different program. Using this framework, we have a flexible way to control and run 3 programs simultaneously. This is especially useful for conducting hard, real-time tasks.
 
-This project was created by Daniel Lee and Justin Rose for the CS140E final project. Special thanks to Dawson Engler for his amazing guidance and for teaching us so much this quarter! We would also like to acknowledge [s-matyekuvich](https://github.com/s-matyukevich/raspberry-pi-os) for his incredibly useful raspi3 tutorial. Our bootloader built off of his code base.
+This project was created by Daniel Lee and Justin Rose for the CS140E final project. Special thanks to Dawson Engler for his amazing guidance and for teaching us so much this quarter! We would also like to acknowledge [s-matyekuvich](https://github.com/s-matyukevich/raspberry-pi-os) for his incredibly useful raspi3 tutorial. Our bootloader built off of his code base. In fact, we spent a lot of time going through and understanding his tutorial.
 
 ## How to Run
 
