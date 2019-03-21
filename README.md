@@ -33,9 +33,13 @@ Messages in mailbox 1 mean the master wants us to stop execution. If we receive 
 
 mbox_send() takes a core number, mailbox number, and message as parameters. This function finds the address of the specified core's mailbox of interest and writes the message into that mailbox. The message can either be a value or an address. Writing addresses is particularly useful for our bootloader code. When we send a message to a core, that core receives a mailbox interrupt.
 
-mbox_read() takes just the mailbox number as a parameter. On each core, we only read from our own four mailboxes. Thus, we use our core number and the specified mailbox number to read the message.
+mbox_read() takes just the mailbox number as a parameter. On each core, we only read from our own four mailboxes. Thus, we use our core number and the specified mailbox number to read the message. Once we read the message, we clear the mailbox to allow other cores to continue writing to it.
+
+One important feature of the mailboxes is that, when we are interested in reading from a mailbox, we use a different register from writing to that mailbox. The MBOX_SET registers are write-only and we can only write 1's. The MBOX_RDCLR registers are read/clear only - we can read a value and if we write a 1, this clears the corresponding bit. This improves atomicity for mailbox read/writes.
 
 Figuring out how to use the mailboxes was fairly tricky. There aren't any good examples of using mailboxes/mailbox interrupts for multicore communication on the raspberry pi, and there is very [little documentation](https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2836/QA7_rev3.4.pdf) about the raspi3 local peripherals. However, the mailboxes now provide a very clean and effective way to communicate between cores.
+
+It took a very long time for us to distinguish between the mailbox described in the BCM document and the mailboxes described in QA7. We believe the mailbox described in the BCM document is a system-wide register for communicating with the GPU. This is associated with the general interrupt controller. However, each core has its own local interrupt controller along with 4 core-specific mailboxes for a total of 16 mailboxes and 4 local interrupt controllers. **THESE ARE COMPLETELY DIFFERENT FROM THE SYSTEM MAILBOX/INTERRUPT CONTROLLER**. It took us a while and a lot of experimentation to realize that these mailboxes/interrupt controllers are completely distinct.
 
 # Pi Shell
 
