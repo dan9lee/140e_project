@@ -1,23 +1,20 @@
-# multicore_bootloader
+# Introduction
 
-## Introduction
+## How to Run
 
-### How to Run
+## Differences from Raspi A+
 
-### Differences from Raspi A+
+# Boot up
 
-## Boot up
+# Interrupts
 
-## Interrupts
+## Mailboxes
 
-### Mailboxes
+# Memory
 
-## Memory
+## Blink
 
-### Blink
-
-### Virtual Memory (attempted but failed)
+## Virtual Memory (attempted but failed)
 
 
-
-## 
+# Conclusion 
