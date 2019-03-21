@@ -12,11 +12,16 @@ Place the necessary [firmware](https://github.com/raspberrypi/firmware/tree/mast
 
 ## Differences from Raspi A+
 
+There are many differences between the Raspi 3B and the Raspi A+ we used in class. [dwelch](https://github.com/dwelch67/raspberrypi) provides an overview. The Raspi 3B has 4 cores, 1GB of device memory, 32/64-bit support, and uses ARMv8, compared to the Raspi A+ single core, 512MB of device memory, 32-bit support, and ARMv6. What is really frustrating is that there is very little documentation for the Raspi 3B's hardware. Although it uses the Broadcom BCM2837 SoC, we only have acces to the BCM2835 documentation along with an [extra revision sheet](https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2836/QA7_rev3.4.pdf). Big idea is that Raspi 3B is very different from A+ and it was difficult to adapt code from our labs. Thus, we built off of s-matyekuvich's repository.
+
 # Boot up
 
-# Interrupts
+Let's get into the nitty-gritty. We will examine bootloader/src. So how does the Raspi boot up? When the device is powered on, the GPU reads config.txt on the SD card to get some configuration parameters. Then, it loads kernel8.img into memory and starts executing from .text.boot (in linker.ld). Now, refer to boot.S. All four cores start executing at \_start. The first thing they do is check their core number from the lower 8 bits of the mpidr_el1 register. s-matyekuvich and most other online OS examples only use a single core, so they hang on all cores except the master (core 0). Instead, we have the master and slave cores diverge and follow two separate paths. All cores set relevant system registers, disabling MMU, disabling caches, set endianness, hypervisor state to choose 64-bit mode, and the state of exception level 2/3. We borrowed this code from s-mat. But basically, when we eret (exception return), we jump down to exception level 1 and start executing at el1_entry/el1_entry_child for the master/slave cores respectively. Next the master zeros its bss and all four cores set their respective stack pointers (based on values we define in mm.h). Then, the master branches to kernel_main and all three slaves branch to kernel_child.
 
-## Mailboxes
+# Mailbox Interrupts
+
+The slaves have a very simple kernel because most of their work is defined in the interrupt handler. All the cores do is initialize their mailboxes, initialize the interrupt request vector, enable interrupts, then hang. Let's look a bit more closesly at each of these steps.
+
 
 # Memory
 
