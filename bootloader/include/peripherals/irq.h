@@ -3,6 +3,7 @@
 
 #include "peripherals/base.h"
 
+// all from pg109 of BCM2835
 #define IRQ_BASIC_PENDING	(PBASE+0x0000B200)
 #define IRQ_PENDING_1		(PBASE+0x0000B204)
 #define IRQ_PENDING_2		(PBASE+0x0000B208)

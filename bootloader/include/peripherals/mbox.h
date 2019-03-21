@@ -1,6 +1,8 @@
 #ifndef	_P_MBOX_H
 #define	_P_MBOX_H
 
+//Copied directly from QA7, pages 19, 20
+
 #include "peripherals/base.h"
 // Timers interrupt control registers
 #define CORE0_TIMER_IRQCNTL 0x40000040

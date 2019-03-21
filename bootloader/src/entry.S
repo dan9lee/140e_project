@@ -14,6 +14,7 @@
 	b	\label
 	.endm
 
+	//store general purpose registers and el1 link registers/saved program status register to stack
 	.macro	kernel_entry
 	sub	sp, sp, #S_FRAME_SIZE
 	stp	x0, x1, [sp, #16 * 0]
@@ -39,6 +40,7 @@
 	str	x23, [sp, #16 * 16]
 	.endm
 
+	//restore general purpose and elr/spsr from stack, execute eret to resume
 	.macro	kernel_exit
 	ldr	x23, [sp, #16 * 16]
 	ldp	x30, x22, [sp, #16 * 15] 
@@ -78,7 +80,7 @@ vectors:
 	ventry	error_invalid_el1t			// Error EL1t
 
 	ventry	sync_invalid_el1h			// Synchronous EL1h
-	ventry	el1_irq					// IRQ EL1h
+	ventry	el1_irq						// IRQ EL1h - this is the only one we care abt
 	ventry	fiq_invalid_el1h			// FIQ EL1h
 	ventry	error_invalid_el1h			// Error EL1h
 
@@ -138,9 +140,9 @@ error_invalid_el0_32:
 	handle_invalid_entry  ERROR_INVALID_EL0_32
 
 el1_irq:
-	kernel_entry 
+	kernel_entry		//save important registers to stack
 	bl	handle_irq
-	kernel_exit 
+	kernel_exit 		//restore important registers from stack
 
 .globl ret_from_fork
 ret_from_fork:

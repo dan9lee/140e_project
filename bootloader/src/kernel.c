@@ -33,28 +33,36 @@ static int readline(char *buf, int sz) {
 	return -1;
 }
 
-void kernel_main(void)
-{
-	uart_init();
-	init_printf(0, putc);
-    unsigned int ra;
+void init_led() {
+	unsigned int ra;
     ra=get32(GPFSEL1);
     ra&=~(7<<18);
     ra|=1<<18;
     put32(GPFSEL1,ra);
+}
 
-    	// while(c!='s') c=uart_recv();
+void blink() {
+	unsigned int ra;
+    put32(GPSET0,1<<16);
+    for(ra=0;ra<0x10000;ra++) burn();
+    put32(GPCLR0,1<<16);
+    for(ra=0;ra<0x10000;ra++) burn();
+}
+
+void kernel_main(void)
+{
+	uart_init();
+
+	init_printf(0, putc);
+    
+    init_led();
+
 	char buf[1024];
 	int n;
 
-	// for(unsigned i = 0; i < 20; i++) put_uint(0x12345678);
-
 	while((n = readline(buf, sizeof(buf)))) {
-        put32(GPSET0,1<<16);
-        for(ra=0;ra<0x10000;ra++) burn();
-        put32(GPCLR0,1<<16);
-        for(ra=0;ra<0x10000;ra++) burn();
-        // while(1) printf("hello!\n");
+
+		blink();	//just show that we finished reading the line
 
 		if(strncmp(buf, "echo", 4) == 0) {
 			printf("%s\n", buf);
@@ -66,18 +74,18 @@ void kernel_main(void)
 		} else if(strncmp(buf, "send", 4) == 0) {
 			unsigned core = buf[5]-'0';
 			unsigned addr_lower = get_uint();
-			unsigned addr_upper = get_uint();
+			unsigned addr_upper = get_uint();	// get address to write to
 			unsigned long addr = ((unsigned long) addr_upper << 32) + addr_lower;
 			printf("core %u got addr %u %u\n", core, addr_upper, addr_lower);
-			load((unsigned *)addr);
+			load((unsigned *)addr);		// modified version of bootloader code
 			delay(100000);
-			mbox_sendA(core, 0, (unsigned*) addr);
+			mbox_sendA(core, 0, (unsigned*) addr); //send address for core to jump to
 
 
 
 		} else if(strncmp(buf, "stop", 4) == 0) {
 			unsigned core = buf[5]-'0';
-			mbox_send(core, 1, 999);
+			mbox_send(core, 1, 999);	//send core mbox interrupt to stop
 
 		} else {
 	        printf("%s\n", buf);

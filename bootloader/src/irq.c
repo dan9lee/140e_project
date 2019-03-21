@@ -40,15 +40,13 @@ void show_invalid_entry_message(int type, unsigned long esr, unsigned long addre
 void handle_irq(void)
 {
 	unsigned cpuId = getCore();
-	// unsigned int irq = get32(IRQ_PENDING_1);
-	// if(irq == SYSTEM_TIMER_IRQ_1) handle_timer_irq();
 
+	unsigned irqSourceAddr = CORE0_IRQ_SOURCE + 4*cpuId;	//QA7, pg16
 
-	unsigned irqSourceAddr = CORE0_IRQ_SOURCE + 4*cpuId;
 	unsigned src = get32(irqSourceAddr);
-	unsigned val = (src >> 4) & (0b1111);
+	unsigned val = (src >> 4) & (0b1111);		//QA7 pg16 get mailbox number
 	unsigned mboxNum = 0;
-	// printf("mboxC\r\n");
+
 	while(!(val & 1 << mboxNum)) {
 		mboxNum++;
 		if(mboxNum > 3) {
@@ -56,10 +54,8 @@ void handle_irq(void)
 			break;
 		}
 	}
-	// printf("gotNum\r\n");
+
 	if(val) {
-		// printf("received mbox interrupt on cpu %u mbox %u\r\n", cpuId, mboxNum);
-		handle_mbox_irq(mboxNum);
+		handle_mbox_irq(mboxNum);	//handle mailbox interrupt for offending mailbox
 	} 
-	// printf("finIRQ\r\n");
 }
