@@ -47,6 +47,8 @@ Our multicore bootloader builds on the simple shell we used in lab 10. Basically
 
 ## Blink
 
+We link blink_n.img at n * 0x1000000 specified in the linker.ld file. This is a simple test program that blinks on a specific gpio pin. We use these 3 programs linked at 3 distinct addresses to test execution on 3 cores.
+
 ## Virtual Memory (attempted but failed)
 
 
